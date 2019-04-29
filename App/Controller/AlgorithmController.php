@@ -14,24 +14,31 @@ class AlgorithmController
     public function findBestSmsCombination($smsList, $requiredIncome)
     {
         $sortedSmsListByPrice = $this->sortSmsListByPrice($smsList);
-        $smsCombination = [];
+        $sortedListLength = count($sortedSmsListByPrice) - 1;
+        $smsCombination = []; //this array for suitable sms
+        $epsilon = 0.00001; //this number to test for equality with abs
 
-        foreach ($sortedSmsListByPrice as $sms) {
-            while ($requiredIncome >= $sms['income']) {
-                $smsCombination['price'][] = $sms['price'];
-                $requiredIncome = $requiredIncome - $sms['income'];
-                $smsCombination['required_income'][] = $requiredIncome;
+        for ($i = 0; $i < $sortedListLength; $i++) {
+            while ($requiredIncome >= $sortedSmsListByPrice[$i]['income'] && $requiredIncome > $sortedSmsListByPrice[$i+1]['income']) {
+                $smsCombination['smsPrice'][] = $sortedSmsListByPrice[$i]['price'];
+                $requiredIncome = $requiredIncome - $sortedSmsListByPrice[$i]['income'];
+                $smsCombination['requiredIncome'][] = $requiredIncome;
             }
         }
 
-        if ($requiredIncome > 0) {
-            $sortedSmsListLast = count($sortedSmsListByPrice) - 1;
-            $smsCombination['price'][] = $sortedSmsListByPrice[$sortedSmsListLast]['price'];
-            $requiredIncome = $requiredIncome - $sortedSmsListByPrice[$sortedSmsListLast]['income'];
-            $smsCombination['required_income'][] = $requiredIncome;
+        //check if there is a residue and if there is, then remove it
+        if ($requiredIncome > 0 && $requiredIncome <= $sortedSmsListByPrice[$sortedListLength]['income']
+            or abs($requiredIncome - $sortedSmsListByPrice[$sortedListLength]['income']) < $epsilon) {
+            $smsCombination['smsPrice'][] = $sortedSmsListByPrice[$sortedListLength]['price'];
+            $requiredIncome = $requiredIncome - $sortedSmsListByPrice[$sortedListLength]['income'];
+            $smsCombination['requiredIncome'][] = $requiredIncome;
+        } elseif ($requiredIncome > 0 && $requiredIncome > $sortedSmsListByPrice[$sortedListLength]['income']) {
+            $smsCombination['smsPrice'][] = $sortedSmsListByPrice[$sortedListLength - 1]['price'];
+            $requiredIncome = $requiredIncome - $sortedSmsListByPrice[$sortedListLength - 1]['income'];
+            $smsCombination['requiredIncome'][] = $requiredIncome;
         }
 
-        return $smsCombination['price'];
+        return $smsCombination;
     }
 
     private function sortSmsListByPrice($array)
