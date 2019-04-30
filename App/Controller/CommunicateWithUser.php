@@ -26,6 +26,7 @@ class CommunicateWithUser
         $this->displayFilePathQuestionToUser();
         $fileName = $this->displayInputBoxToUser();
         $fileName = FILES . $fileName;
+
         return $fileName;
     }
 }

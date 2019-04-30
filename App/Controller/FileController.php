@@ -35,7 +35,11 @@ class FileController
         $data = $this->getAssocArrayFromJsonFile();
         $requiredIncome = $data['required_income'];
 
-        return $requiredIncome;
+        if (is_numeric($requiredIncome)) {
+            return $requiredIncome;
+        } else {
+            die ("Required income must be numeric. \n");
+        }
     }
 
     public function getSmsList()
@@ -43,6 +47,10 @@ class FileController
         $data = $this->getAssocArrayFromJsonFile();
         $smsList = $data['sms_list'];
 
-        return $smsList;
+        if (is_array($smsList)) {
+            return $smsList;
+        } else {
+            die ("Sms list must be array. \n");
+        }
     }
 }
